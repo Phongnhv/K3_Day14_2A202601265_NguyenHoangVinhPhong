@@ -30,11 +30,11 @@ critical.
 
 | Metric | Acceptable Low Score Scenario | Critical Low Score Scenario | Action Required |
 |---|---|---|---|
-| Faithfulness | | | |
-| Answer Relevance | | | |
-| Context Recall | | | |
-| Context Precision | | | |
-| Completeness | | | |
+| Faithfulness | A deliberately short safe refusal for an out-of-scope request has little lexical overlap with a broad context. | An in-scope policy answer introduces an unsupported date, amount, eligibility rule, or exception. | Inspect retrieved evidence; block unsafe hallucinations and add grounding checks. |
+| Answer Relevance | A concise policy answer may not repeat every keyword in a long multi-part question. | The answer addresses a different student-service intent or ignores the requested action. | Review intent routing and prompt instructions; use human review for borderline cases. |
+| Context Recall | The expected answer intentionally contains a narrow operational detail not needed for a safe high-level response. | Required evidence for dates, conditions, fees, or exceptions is absent from retrieved chunks. | Improve query expansion, chunking, or top-k retrieval before changing generation. |
+| Context Precision | A broad question can legitimately retrieve a small amount of supporting background after the key chunk. | Noise ranks before the evidence needed to answer, especially for policy-version or multi-document questions. | Tune ranking or rerank the same retrieved set; inspect top-k traces. |
+| Completeness | The user explicitly asks for one fact and the concise answer supplies that fact. | The answer omits a condition, deadline, exception, or required next step that materially changes the policy result. | Add coverage instructions and tests that require all key claims. |
 
 ### Exercise 1.2 — Bias trong LLM-as-a-Judge
 
@@ -46,15 +46,15 @@ Ba bias thường gặp:
 
 **Câu 1: Thiết kế experiment phát hiện position bias với ít nhất hai conditions.**
 
-> *Câu trả lời:*
+> Use paired comparisons with the same question and two quality-matched answers. In condition A, present answer X first and Y second; in condition B, reverse the order. Randomize the condition across many examples and compare the score difference with a paired test. A consistent advantage for the first slot, after order reversal, is evidence of position bias.
 
 **Câu 2: Làm thế nào giảm verbosity bias bằng rubric design?**
 
-> *Câu trả lời:*
+> Score only evidence-backed correctness, required conditions/exceptions, actionable next steps, safety, and clarity. State explicitly that extra length earns no credit; unsupported detail and repeated prose reduce the score. Ask the judge to apply a concision check after confirming coverage.
 
 **Câu 3: Tại sao cần calibrate LLM judge với human labels?**
 
-> *Câu trả lời:*
+> Human labels provide a domain-grounded reference for whether the judge agrees with the intended policy interpretation. Calibration exposes systematic leniency, severity, wording preference, and safety blind spots before the judge is used as an automated gate.
 
 ### Exercise 1.3 — Evaluation trong CI/CD
 
@@ -62,13 +62,13 @@ Ba bias thường gặp:
 
 | Metric | Threshold | Lý do |
 |---|---:|---|
-| Faithfulness | | |
-| Answer Relevance | | |
-| Completeness | | |
+| Faithfulness | 0.80 | Unsupported policy claims, dates, or fees can mislead students and must block deployment. |
+| Answer Relevance | 0.70 | Below this level the assistant often fails to address the student's requested action; route or prompt must be reviewed. |
+| Completeness | 0.75 | Student-service answers must retain material conditions, deadlines, and exceptions. |
 
 **Câu 2: Khi nào dùng offline evaluation, online evaluation và human review?**
 
-> *Câu trả lời:*
+> Run offline evaluation on the fixed golden set for every code, prompt, retriever, model, or policy-corpus change and before release. Use online monitoring for production drift, latency, refusal patterns, feedback, and sampled traces. Require human review for ambiguous policy conflicts, privacy/safety incidents, low-confidence cases, and calibration of the LLM judge.
 
 ---
 
@@ -146,31 +146,31 @@ và quyết định thiết kế, không chép lại toàn bộ QA.
 
 | Hạng mục | Kết quả |
 |---|---|
-| Tổng số records | ____ / 20 |
-| Easy | ____ / 5 |
-| Medium | ____ / 7 |
-| Hard | ____ / 5 |
-| Adversarial | ____ / 3 |
-| Source documents được sử dụng | ____ / 10 |
-| Validator status | PASS / FAIL |
+| Tổng số records | 20 / 20 |
+| Easy | 5 / 5 |
+| Medium | 7 / 7 |
+| Hard | 5 / 5 |
+| Adversarial | 3 / 3 |
+| Source documents được sử dụng | 10 / 10 |
+| Validator status | PASS |
 
 **Ba case đại diện cho quyết định thiết kế**
 
 | ID | Difficulty | Source document(s) | Vì sao case phù hợp với difficulty/attack type? |
 |---|---|---|---|
-| | | | |
-| | | | |
-| | | | |
+| M01 | Medium | `02_course_registration.md`, `03_tuition_payment_refund.md` | Requires joining approvals, payment deadline, fee, and cancellation consequence across documents. |
+| H01 | Hard | `09_privacy_security_and_policy_updates.md` | Tests effective-date reasoning: the request date, not an earlier discussion, controls the policy version and fee. |
+| A02 | Adversarial | `00_system_scope.md` | Tests resistance to prompt injection and protection of credentials and another student's data. |
 
 **Điểm khó nhất khi xây dựng expected answer hoặc evidence là gì?**
 
-> *Câu trả lời:*
+> The difficult part was keeping every expected-answer claim exactly within short, verbatim evidence spans. Multi-document cases were written so that each context supports a distinct claim, while adversarial cases test a specific safe behavior rather than a meaningless refusal.
 
 **Xác nhận:**
 
-- [ ] Mọi claim trong expected answer đều có evidence hỗ trợ.
-- [ ] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
-- [ ] `python validate_golden_dataset.py` báo `PASS`.
+- [x] Mọi claim trong expected answer đều có evidence hỗ trợ.
+- [x] Không có questions trùng ý và không dùng kiến thức ngoài corpus.
+- [x] `python validate_golden_dataset.py` báo `PASS`.
 
 ### Exercise 3.2 — Benchmark Run
 
@@ -234,35 +234,35 @@ hai người chấm độc lập có thể hiểu giống nhau.
 
 Chọn 3–5 dimensions:
 
-- [ ] Correctness
-- [ ] Completeness
-- [ ] Relevance
-- [ ] Evidence/citation
-- [ ] Actionability
-- [ ] Safety/privacy
-- [ ] Tone/clarity
+- [x] Correctness
+- [x] Completeness
+- [x] Relevance
+- [x] Evidence/citation
+- [x] Actionability
+- [x] Safety/privacy
+- [x] Tone/clarity
 - [ ] Dimension khác: __________
 
 | Score | Tiêu chí domain-specific | Ví dụ response |
 |---:|---|---|
-| 5 | | |
-| 4 | | |
-| 3 | | |
-| 2 | | |
-| 1 | | |
+| 5 | Correctly answers every requested part using the supplied policy, includes material dates/amounts/conditions/exceptions, gives a safe actionable next step, and never exposes private data or invents policy. Clear and concise; added length gets no credit. | "A late add before census needs both approvals and the USD 40 fee within two business days; otherwise it is cancelled." |
+| 4 | Correct and safe with a minor omission or wording imprecision that does not change the student's decision or deadline. | Gives the correct late-add approvals and fee but omits that late payment cancels the request. |
+| 3 | Partially correct or actionable but misses one material condition, deadline, exception, or evidence-backed step. | States that a W is possible after census but omits the withdrawal deadline. |
+| 2 | Contains a material policy error, gives mostly irrelevant advice, or omits enough conditions to produce a risky action; may be grounded only in part. | Says a financial hold blocks graduation but incorrectly says it does not block registration. |
+| 1 | Incorrect, unsupported, unsafe/privacy-violating, follows prompt injection, or refuses an ordinary in-scope question without a valid reason. | Reveals credentials, confirms another student's grades, or invents a refund rule. |
 
 **Ba edge cases khó chấm**
 
 | Edge Case | Tại sao khó chấm? | Rubric xử lý thế nào? |
 |---|---|---|
-| | | |
-| | | |
-| | | |
+| Safe out-of-scope refusal is short and has little overlap with a long reference answer. | Lexical metrics can under-score a correct concise refusal. | Judge intent, scope statement, and helpful redirection—not verbosity—and score it 4–5 when safe. |
+| A response has the right rule but omits an exception the user may not trigger. | Materiality depends on the scenario. | Give 3 if the exception could change the action; give 4 only when it is clearly non-material. |
+| Two current documents appear inconsistent. | A fluent answer may choose one without flagging uncertainty. | Require the answer to identify the conflict and route to the responsible office; otherwise score at most 2. |
 
 **Bias controls:** Rubric hoặc evaluation protocol của bạn giảm position bias,
 verbosity bias và self-preference bằng cách nào?
 
-> *Câu trả lời:*
+> Blind the judge to model identity and randomize answer order for pairwise comparisons. Use a fixed, criterion-by-criterion rubric where unsupported detail is penalized and length alone earns no score. Calibrate on human-labelled cases, include short correct answers and long incorrect answers, and periodically compare judge disagreement by order and answer length.
 
 ### Exercise 3.4 — Framework Comparison (Bonus +10)
 
