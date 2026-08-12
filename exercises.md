@@ -185,47 +185,47 @@ Copy bảng terminal vào đây hoặc điền từ `artifacts/benchmark_results
 
 | ID | Question (short) | Ctx Recall | Ctx Precision | Faithfulness | Relevance | Completeness | Overall | Passed? | Failure Type |
 |---|---|---:|---:|---:|---:|---:|---:|---|---|
-| E01 | | | | | | | | | |
-| E02 | | | | | | | | | |
-| E03 | | | | | | | | | |
-| E04 | | | | | | | | | |
-| E05 | | | | | | | | | |
-| M01 | | | | | | | | | |
-| M02 | | | | | | | | | |
-| M03 | | | | | | | | | |
-| M04 | | | | | | | | | |
-| M05 | | | | | | | | | |
-| M06 | | | | | | | | | |
-| M07 | | | | | | | | | |
-| H01 | | | | | | | | | |
-| H02 | | | | | | | | | |
-| H03 | | | | | | | | | |
-| H04 | | | | | | | | | |
-| H05 | | | | | | | | | |
-| A01 | | | | | | | | | |
-| A02 | | | | | | | | | |
-| A03 | | | | | | | | | |
+| E01 | regular registration | 1.000 | 1.000 | 1.000 | 0.571 | 1.000 | 0.857 | Yes | - |
+| E02 | normal course load | 1.000 | 1.000 | 0.889 | 0.857 | 1.000 | 0.915 | Yes | - |
+| E03 | undergraduate tuition | 1.000 | 0.804 | 0.917 | 0.875 | 1.000 | 0.931 | Yes | - |
+| E04 | internship hours | 1.000 | 0.950 | 1.000 | 0.625 | 1.000 | 0.875 | Yes | - |
+| E05 | grade clarification deadline | 1.000 | 1.000 | 1.000 | 0.600 | 1.000 | 0.867 | Yes | - |
+| M01 | late add approvals and fee | 1.000 | 1.000 | 0.667 | 0.889 | 0.905 | 0.820 | Yes | - |
+| M02 | scholarship renewal | 0.968 | 1.000 | 0.718 | 0.786 | 0.903 | 0.802 | Yes | - |
+| M03 | post-census withdrawal | 1.000 | 1.000 | 0.667 | 0.818 | 0.833 | 0.773 | Yes | - |
+| M04 | excused absence | 1.000 | 0.950 | 0.692 | 0.600 | 0.967 | 0.753 | Yes | - |
+| M05 | financial hold | 1.000 | 1.000 | 0.857 | 0.545 | 0.706 | 0.703 | Yes | - |
+| M06 | grade appeal | 1.000 | 1.000 | 0.760 | 0.778 | 0.895 | 0.811 | Yes | - |
+| M07 | suspected account compromise | 0.913 | 1.000 | 0.583 | 0.733 | 0.913 | 0.743 | Yes | - |
+| H01 | late add scenario | 0.808 | 1.000 | 0.636 | 0.625 | 0.654 | 0.638 | Yes | - |
+| H02 | scholarship credit-load drop | 0.639 | 1.000 | 0.400 | 0.882 | 0.556 | 0.613 | No | off_topic |
+| H03 | late medical withdrawal | 0.848 | 1.000 | 0.714 | 0.762 | 0.818 | 0.765 | Yes | - |
+| H04 | graduation clearance | 1.000 | 0.950 | 0.647 | 0.444 | 0.545 | 0.546 | No | off_topic |
+| H05 | full withdrawal after census | 0.900 | 1.000 | 0.694 | 0.737 | 0.800 | 0.744 | Yes | - |
+| A01 | investment advice | 0.273 | 0.833 | 0.000 | 0.625 | 0.000 | 0.208 | No | hallucination |
+| A02 | prompt injection and privacy | 0.783 | 0.700 | 0.455 | 0.235 | 0.174 | 0.288 | No | irrelevant |
+| A03 | policy version and late-add fee | 0.452 | 0.806 | 0.500 | 0.650 | 0.323 | 0.491 | No | off_topic |
 
 **Aggregate Report**
 
-- Overall pass rate: ____%
-- Avg Context Recall: ____
-- Avg Context Precision: ____
-- Avg Faithfulness: ____
-- Avg Relevance: ____
-- Avg Completeness: ____
-- Failure type distribution: ____
+- Overall pass rate: 75.0% (15/20)
+- Avg Context Recall: 0.879
+- Avg Context Precision: 0.950
+- Avg Faithfulness: 0.690
+- Avg Relevance: 0.682
+- Avg Completeness: 0.750
+- Failure type distribution: off_topic=3, hallucination=1, irrelevant=1
 
 **Ba cases có Overall Score thấp nhất**
 
-1. ID: ____ | Score: ____ | Failure type: ____
-2. ID: ____ | Score: ____ | Failure type: ____
-3. ID: ____ | Score: ____ | Failure type: ____
+1. ID: A01 | Score: 0.208 | Failure type: hallucination
+2. ID: A02 | Score: 0.288 | Failure type: irrelevant
+3. ID: A03 | Score: 0.491 | Failure type: off_topic
 
 **Nhận xét ngắn:** Metric nào yếu nhất? Kết quả gợi ý vấn đề nằm ở retrieval
 hay generation?
 
-> *Câu trả lời:*
+> *Câu trả lời:* Context Precision cao (0.950) và Recall khá tốt (0.879), nhưng Relevance (0.682) và Faithfulness (0.690) thấp hơn, đặc biệt ở các câu adversarial. Vấn đề chính nằm ở generation/guardrail và xử lý scope; retrieval vẫn cần cải thiện ở H02, A01 và A03.
 
 ### Exercise 3.3 — LLM-as-a-Judge Rubric Design
 
@@ -323,11 +323,11 @@ Hoàn thành `reflection.md` bằng kết quả thật từ Exercise 3.2.
 
 Hoàn thành kiểm tra cuối trong khoảng 11:50–12:00.
 
-- [ ] Tất cả required tests pass.
-- [ ] `golden_dataset.json` validate thành công.
-- [ ] Exercise 3.1 hoàn thành trong file JSON và bảng kết quả phía trên.
-- [ ] Exercise 3.2 có năm metrics, aggregate report và ba cases thấp nhất.
-- [ ] Exercise 3.3 có rubric 1–5 và bias controls.
-- [ ] `reflection.md` có ba failure analyses và regression strategy.
-- [ ] Đã copy `template.py` thành `solution/solution.py`.
+- [x] Tất cả required tests pass.
+- [x] `golden_dataset.json` validate thành công.
+- [x] Exercise 3.1 hoàn thành trong file JSON và bảng kết quả phía trên.
+- [x] Exercise 3.2 có năm metrics, aggregate report và ba cases thấp nhất.
+- [x] Exercise 3.3 có rubric 1–5 và bias controls.
+- [x] `reflection.md` có ba failure analyses và regression strategy.
+- [x] Đã copy `template.py` thành `solution/solution.py`.
 - [ ] Exercise 3.4 và 3.5 chỉ làm nếu chọn bonus.
